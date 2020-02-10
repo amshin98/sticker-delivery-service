@@ -51,13 +51,16 @@ def update_stickers(new_stickers, stickers):
       if new_sticker in stickers:
          index = stickers.index(new_sticker)
          stickers[index].quantity += new_sticker.quantity
+         print("\tIncreasing",new_sticker.name,"to",stickers[index].quantity)
       else:
+         print("\tCreating", new_sticker.name, "as", new_sticker.quantity)
          stickers.append(new_sticker)
 
 
 def update_people_stickers(new_person, people):
    if new_person in people:
       index = people.index(new_person)
+      print("*****", new_person.name, people[index].name)
       update_stickers(new_person.stickers, people[index].stickers)
    else:
       people.append(new_person)
@@ -70,6 +73,7 @@ def parse_xlsx(file_path):
    sheet = workbook.sheet_by_index(0)
 
    for row in range(sheet.nrows):
+      print("\n========== ROW %d ==========\n" % row)
       cur_person = Person(sheet.cell_value(row, NAME_COL), sheet.cell_value(row, VENMO_COL), sheet.cell_value(row, LOCATION_COL), [])
       cur_sticker_list = []
 
@@ -80,9 +84,15 @@ def parse_xlsx(file_path):
 
          cur_sticker_list.append(cur_sticker)
 
+      print("Got", " ,".join([str(sticker.quantity) for sticker in cur_sticker_list]))
+
+      print(cur_person.name)
       update_stickers(cur_sticker_list, cur_person.stickers)
-      update_stickers(cur_sticker_list, all_stickers)
       update_people_stickers(cur_person, people)
+      print("Miles has:", people[0].stickers[0].quantity)
+      update_stickers(cur_sticker_list, all_stickers)
+      print("=== ALL")
+      print("After all, miles has:", people[0].stickers[0].quantity)
 
    return people, all_stickers
 
@@ -104,16 +114,19 @@ def generate_stickers_header():
    return "Name,Total Qty,URL"
 
 
-def generate_AGG(filename, people, stickers):
+def generate_AGG(filename, people, all_stickers):
    lines = []
    lines.append(generate_people_header(people) + "\n")
+   print("===WRITING===\n")
    for person in people:
+      print("Person:", person.name)
+      print("\t", [str(st) for st in person.stickers])
       cur_line = str(person) + ","
       cur_line = cur_line + ",".join([str(person_sticker) for person_sticker in person.stickers])
       lines.append(cur_line + "\n")
 
    lines.append("\n\n" + generate_stickers_header() + "\n")
-   for sticker in stickers:
+   for sticker in all_stickers:
       lines.append(sticker.full_str() + "\n")
 
    with open(os.getcwd() + "\\" + "AGG_" + filename[: filename.find(".xlsx")] + ".csv", "w") as output:
@@ -127,6 +140,8 @@ def main():
       if filename.endswith(".xlsx") and not filename.startswith("AGG_"):
          workbook_path = os.getcwd() + "\\" + filename
          people, stickers = parse_xlsx(workbook_path)
+
+         print("\n\nyeet", people[0], people[0].stickers[0])
 
          generate_AGG(filename, people, stickers)
 
