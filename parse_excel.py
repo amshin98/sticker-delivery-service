@@ -74,7 +74,7 @@ def parse_xlsx(file_path):
    sheet = workbook.sheet_by_index(0)
 
    for row in range(sheet.nrows):
-      cur_person = Person(sheet.cell_value(row, NAME_COL), sheet.cell_value(row, VENMO_COL), sheet.cell_value(row, LOCATION_COL), [])
+      cur_person = Person(sheet.cell_value(row, NAME_COL), sheet.cell_value(row, VENMO_COL).replace("@", ""), sheet.cell_value(row, LOCATION_COL), [])
       cur_sticker_list = []
 
       for col in range(STICKER_START_COL, sheet.row_len(row), 2):
