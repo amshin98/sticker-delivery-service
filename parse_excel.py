@@ -105,7 +105,7 @@ def generate_people_header(people):
 
 
 def generate_stickers_header():
-   return "Name,Total Qty,URL"
+   return "Name,Total Qty,URL,Unit Price,Total Price"
 
 
 def generate_AGG(filename, people, all_stickers):
